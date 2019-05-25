@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">  
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RootNamespace>CRM</RootNamespace>
@@ -7,5 +7,15 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\04-CRM-Domain\CRM-Domain.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="**.edps"/>
+    <None Remove="**.hbml"/>
+    <None Remove="**.view"/>
+    <None Remove="Model/*.hbm.xml"/>
+    <EmbeddedResource Include="Model/*.hbm.xml"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NHibernate" Version="5.2.5"/>
   </ItemGroup>
 </Project>

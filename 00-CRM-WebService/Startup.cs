@@ -1,29 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-// using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using NHibernate.NetCore;
 
 namespace CRM {
     public class Startup {
-        public Startup(IConfiguration configuration) {
+        public Startup(
+            IConfiguration configuration,
+            ILoggerFactory factory) {
+
             Configuration = configuration;
+            factory.UseAsHibernateLoggerFactory();
         }
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
 
             // var appSettingsSection = Configuration.GetSection("AppSettings");
@@ -45,29 +41,44 @@ namespace CRM {
                 .AddApplicationPart(crmControllerAssembly).AddControllersAsServices()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            // services.AddControllers();
-
             services.AddHttpContextAccessor();
 
-            services.AddScoped<ICrmSession, CrmSession>();
-            services.AddScoped<Apps.ICrmApp, Apps.CrmApp>();
-            services.AddScoped<Domain.ICrmContext, Domain.CrmContext>();
-            services.AddScoped<DAL.ICrmRepo, DAL.CrmRepo>();
+            var path = System.IO.Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "hibernate.config"
+            );
+            services.AddHibernate(path);
 
-            // services.AddAutoMapper();
+            services.AddScoped<Apps.ICrmSession, Apps.CrmSession>();
+            services.AddScoped<Apps.ICrmApp, Apps.CrmApp>();
+            services.AddScoped<Core.ICrmCore, Core.CrmCore>();
+
+            // User Context
+            AddScopedReadContext<Domain.User, DAL.USER, DAL.UserMapper>(services);
+
+            // Legacy User Context
+            AddScopedReadContext<Domain.LegacyUser, DAL.BWApuser, DAL.LegacyUserMapper>(services);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        // TODO: Move it to another file.
+        public void AddScopedReadContext<T, TD, TMapper>(
+            IServiceCollection services)
+        where T : Domain.Entity
+        where TMapper : class, DAL.IReadMapper<T, TD> {
+            services
+            .AddScoped<Domain.IReadContext<T>, Domain.ReadContext<T, TD>>()
+            .AddScoped<DAL.IReadMapper<T, TD>, TMapper>()
+            .AddScoped<DAL.IRepository<TD>, DAL.Repository<TD>>();
+        }
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
             if (env.EnvironmentName == "Development")
                 app.UseDeveloperExceptionPage();
             else
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
 
             app.UseHttpsRedirection();
             app.UseSession();
-            // app.UseHttpContextItemsMiddleware();
             app.UseMvc();
         }
     }

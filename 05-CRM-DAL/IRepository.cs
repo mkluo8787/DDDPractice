@@ -3,5 +3,7 @@ using System.Linq;
 
 namespace CRM.DAL {
 
-    public interface ICrmRepo { }
+    public interface IRepository<TD> {
+        IEnumerable<TD> All();
+    }
 }

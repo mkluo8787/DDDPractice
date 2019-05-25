@@ -10,6 +10,7 @@
     <ProjectReference Include="..\03-CRM-Core\CRM-Core.csproj"/>
   </ItemGroup>
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2"/>
   </ItemGroup>
 </Project>

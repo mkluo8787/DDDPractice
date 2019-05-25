@@ -1,21 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
 namespace CRM.Controllers {
 
+    // TODO: Unify response format (class Response)    
+
     [ApiController]
     [Route("[controller]")]
     public class CrmController : ControllerBase {
 
-        readonly ICrmSession session;
         readonly Apps.ICrmApp app;
 
-        public CrmController(ICrmSession session, Apps.ICrmApp app) {
-            this.session = session;
+        public CrmController(Apps.ICrmApp app) {
             this.app = app;
         }
 
@@ -25,13 +24,9 @@ namespace CRM.Controllers {
 
         [HttpPost("login")]
         public IActionResult Login([FromBody] JObject userData) {
-            if (app.Authenticate(userData))            
-                return Ok(new {
-                    session.UserId,
-                    session.TimeCreated
-                });
-            else 
-                return Unauthorized();
+            if (app.Authenticate(userData))
+                return Ok(new { username = userData["username"] });
+            else return Unauthorized();
         }
 
         /**
@@ -41,11 +36,16 @@ namespace CRM.Controllers {
         // GET crm/services
         [HttpGet("services")]
         public IActionResult GetServices() {
-            return new JsonResult(app.GetServices(session.UserId).ToString());
+            if (app.IsLoggedIn())
+                return Ok(app.GetServices());
+            else return Unauthorized();
         }
 
-        // POST crm
-        // [HttpPost]
-        // public void Post([FromBody] string value) { }
+        [HttpGet("services/{id}/info")]
+        public IActionResult GetServiceInfo([FromRoute] int id) {
+            if (app.IsLoggedIn())
+                return Ok(new { id });
+            else return Unauthorized();
+        }
     }
 }

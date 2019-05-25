@@ -4,43 +4,63 @@ using Newtonsoft.Json.Linq;
 
 namespace CRM.Apps {
 
-    using Forms;
-    using Views;
-
     public class CrmApp : ICrmApp {
 
         readonly ICrmSession session;
-        readonly Services.CrmService sercice;
+        readonly Core.ICrmCore core;
 
-        public CrmApp(ICrmSession session, Domain.ICrmContext context) {
+        public CrmApp(ICrmSession session, Core.ICrmCore core) {
             this.session = session;
-            this.sercice = new Services.CrmService(context);
+            this.core = core;
         }
 
         public bool Authenticate(JObject userData) {
-            // TODO: Forms.User(userData).username/password
-            // var user = sercice.Authenticate();
-            // TODO: Mock!
+            try {
+                var user = new Forms.User(userData);
+                Domain.Id? userId;
+                if (!user.legacy)
+                    userId = core.Authenticate(
+                        new Domain.Username(user.username),
+                        new Domain.Password(user.password)
+                    );
+                else
+                    userId = core.AuthenticateLegacy(
+                        new Domain.Username(user.username),
+                        new Domain.Password(user.password)
+                    );
 
-            if (userData.GetValue("username").ToString() == "MKLUO") {
-                session.UserId = "1234";
-                session.TimeCreated = DateTime.UtcNow.ToString();
-                return true;
-            } else {
+                if (userId != null) {
+                    session.UserId = userId.ToString();
+                    session.TimeCreated = DateTime.Now.ToString();
+                    return true;
+                } else {
+                    session.Clear();
+                    return false;
+                }
+            } catch {
                 session.Clear();
                 return false;
             }
-
         }
 
-        public JArray GetServices(string userId) {
-            User user = new User(userId);
-            return JArray.Parse("[]");
+        public bool IsLoggedIn() => session.UserId != null;
+
+        public JObject GetServices() {
+            var userId = session.UserId;
+            return JObject.Parse("{}");
         }
 
-        // public DetailedOrderDto GetOrders() {        
-        //     return new DetailedOrderDto(sercice.Orders.First());
-        // }
+        // // TODO: Mock!
+        // List<Views.ServiceInfo> serviceInfos =
+        //     new List<Views.ServiceInfo> {
+        //         new Views.ServiceInfo { id = "200", group = "B", name = "測試功能01" },
+        //         new Views.ServiceInfo { id = "201", group = "B", name = "測試功能02" },
+        //         new Views.ServiceInfo { id = "203", group = "B", name = "測試功能033" }
+        //     };
 
+        public JObject GetServiceInfo(JObject serviceCode) {
+            var code = new Forms.ServiceCode(serviceCode);
+            return JObject.Parse("{}");
+        }
     }
 }

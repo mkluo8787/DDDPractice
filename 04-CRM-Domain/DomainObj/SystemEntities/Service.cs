@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace CRM.Domain {
 
-    public class Order {
+    public class Service : Entity {
         
     }
 }
