@@ -16,7 +16,7 @@ namespace CRM.Apps.Forms {
 }
 
 namespace CRM.Apps.Views {
-    public abstract class View<TEntity> {
+    public abstract class View<TEntity> where TEntity : Domain.Entity {
 
         // Decomposition
         public View() {}

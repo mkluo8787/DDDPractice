@@ -11,11 +11,11 @@ using NHibernate.NetCore;
 namespace CRM {
     public class Startup {
         public Startup(
-            IConfiguration configuration,
-            ILoggerFactory factory) {
+            // ILoggerFactory factory,
+            IConfiguration configuration) {
 
             Configuration = configuration;
-            factory.UseAsHibernateLoggerFactory();
+            // factory.UseAsHibernateLoggerFactory();
         }
 
         public IConfiguration Configuration { get; }
@@ -25,10 +25,14 @@ namespace CRM {
             // var appSettingsSection = Configuration.GetSection("AppSettings");
             // services.Configure<AppSettings>(appSettingsSection);
 
+            services.Configure<IISServerOptions>(options => {
+                options.AutomaticAuthentication = false;
+            });
+
             services.AddDistributedMemoryCache();
 
             services.AddSession(options => {
-                options.IdleTimeout = TimeSpan.FromSeconds(10);
+                options.IdleTimeout = TimeSpan.FromSeconds(30);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.Name = "crm";
@@ -74,8 +78,8 @@ namespace CRM {
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
             if (env.EnvironmentName == "Development")
                 app.UseDeveloperExceptionPage();
-            else
-                app.UseHsts();
+            //else
+            //    app.UseHsts();
 
             app.UseHttpsRedirection();
             app.UseSession();

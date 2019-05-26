@@ -14,7 +14,7 @@ namespace CRM.Apps {
             this.core = core;
         }
 
-        public bool Authenticate(JObject userData) {
+        public JObject Authenticate(JObject userData) {
             try {
                 var user = new Forms.User(userData);
                 Domain.Id? userId;
@@ -32,14 +32,17 @@ namespace CRM.Apps {
                 if (userId != null) {
                     session.UserId = userId.ToString();
                     session.TimeCreated = DateTime.Now.ToString();
-                    return true;
+                    return JObject.FromObject(
+                        new Views.LoginInfo("Welcome to CRM 2019."));
                 } else {
                     session.Clear();
-                    return false;
+                    return JObject.FromObject(
+                        new Views.LoginInfo("Login failed!"));
                 }
             } catch {
                 session.Clear();
-                return false;
+                return JObject.FromObject(
+                    new Views.LoginInfo("Exception encountered during login!"));
             }
         }
 

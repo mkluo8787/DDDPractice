@@ -19,14 +19,24 @@ namespace CRM.Controllers {
         }
 
         /**
+            Test
+         */
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok(new { });
+        }
+
+        /**
             Authentication
          */
 
         [HttpPost("login")]
         public IActionResult Login([FromBody] JObject userData) {
-            if (app.Authenticate(userData))
-                return Ok(new { username = userData["username"] });
-            else return Unauthorized();
+            var loginResult = app.Authenticate(userData);
+            if (app.IsLoggedIn())
+                return Ok(loginResult);
+            else return Unauthorized(loginResult);
         }
 
         /**

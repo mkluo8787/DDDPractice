@@ -5,6 +5,7 @@
     <RootNamespace>CRM</RootNamespace>
     <LangVersion>8.0</LangVersion>
     <NullableContextOptions>enable</NullableContextOptions>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\01-CRM-Controller\CRM-Controller.csproj"/>
