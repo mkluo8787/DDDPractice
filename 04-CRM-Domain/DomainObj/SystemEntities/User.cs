@@ -26,12 +26,14 @@ namespace CRM.Domain {
         public LegacyUser(
             Id id,
             Username username,
-            Password password
+            Password password,
+            Name name
         ) {
             values = new Dictionary<string, ValueType> { 
                 { "Id", id },
                 { "Username", username },
-                { "Password", password }
+                { "Password", password },
+                { "Name", name }
             };
         }
     }

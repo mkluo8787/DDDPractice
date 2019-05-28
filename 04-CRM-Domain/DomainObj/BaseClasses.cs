@@ -16,6 +16,10 @@ namespace CRM.Domain {
         public class InvalidValueException : System.Exception { }
     }
 
+    public interface IValue<T> {
+        T Value { get; }
+    }
+
     public abstract class Entity {
 
         protected Dictionary<string, ValueType> values =

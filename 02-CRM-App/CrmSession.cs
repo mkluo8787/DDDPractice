@@ -6,7 +6,7 @@ namespace CRM.Apps {
 
     public interface ICrmSession {
         string? TimeCreated { get; set; }
-        string? UserId { get; set; }
+        string? Username { get; set; }
         void Clear();
     }
 
@@ -27,7 +27,7 @@ namespace CRM.Apps {
             set => Session.SetString(timeKey, value);
         }
 
-        public string? UserId {
+        public string? Username {
             get => Session.GetString(userKey);
             set => Session.SetString(userKey, value);
         }

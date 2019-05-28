@@ -14,56 +14,47 @@ namespace CRM.Apps {
             this.core = core;
         }
 
-        public JObject Authenticate(JObject userData) {
+        public IAppOutput Authenticate(JObject userData) {
             try {
                 var user = new Forms.User(userData);
-                Domain.Id? userId;
-                if (!user.legacy)
-                    userId = core.Authenticate(
-                        new Domain.Username(user.username),
-                        new Domain.Password(user.password)
-                    );
-                else
-                    userId = core.AuthenticateLegacy(
-                        new Domain.Username(user.username),
-                        new Domain.Password(user.password)
-                    );
+                Domain.Name? name = null;
+                switch (user.type) {
+                    case Forms.User.Type.Default:
+                        name = core.Authenticate(
+                            new Domain.Username(user.username),
+                            new Domain.Password(user.password)
+                        ); break;
+                    case Forms.User.Type.Legacy:
+                        name = core.AuthenticateLegacy(
+                            new Domain.Username(user.username),
+                            new Domain.Password(user.password)
+                        ); break;
+                }
 
-                if (userId != null) {
-                    session.UserId = userId.ToString();
+                if (name != null) {
+                    session.Username = user.username;
                     session.TimeCreated = DateTime.Now.ToString();
-                    return JObject.FromObject(
-                        new Views.LoginInfo("Welcome to CRM 2019."));
+                    return new Views.LoginInfo($"Welcome to CRM 2019, {name.Str}.");
                 } else {
                     session.Clear();
-                    return JObject.FromObject(
-                        new Views.LoginInfo("Login failed!"));
+                    return new Views.LoginInfo("Login failed!");
                 }
             } catch {
                 session.Clear();
-                return JObject.FromObject(
-                    new Views.LoginInfo("Exception encountered during login!"));
+                return new Views.LoginInfo("Exception encountered during login!");
             }
         }
 
-        public bool IsLoggedIn() => session.UserId != null;
+        public bool IsLoggedIn() => session.Username != null;
 
-        public JObject GetServices() {
-            var userId = session.UserId;
-            return JObject.Parse("{}");
+        public IAppOutput GetServices() {
+            var userId = session.Username;
+            return new Views.LoginInfo("...");
         }
 
-        // // TODO: Mock!
-        // List<Views.ServiceInfo> serviceInfos =
-        //     new List<Views.ServiceInfo> {
-        //         new Views.ServiceInfo { id = "200", group = "B", name = "測試功能01" },
-        //         new Views.ServiceInfo { id = "201", group = "B", name = "測試功能02" },
-        //         new Views.ServiceInfo { id = "203", group = "B", name = "測試功能033" }
-        //     };
-
-        public JObject GetServiceInfo(JObject serviceCode) {
+        public IAppOutput GetServiceInfo(JObject serviceCode) {
             var code = new Forms.ServiceCode(serviceCode);
-            return JObject.Parse("{}");
+            return new Views.LoginInfo("...");
         }
     }
 }

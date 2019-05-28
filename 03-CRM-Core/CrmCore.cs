@@ -10,8 +10,8 @@ namespace CRM.Core {
     using Domain;
 
     public interface ICrmCore {
-        Id? Authenticate(Username username, Password password);
-        Id? AuthenticateLegacy(Username username, Password password);
+        Name? Authenticate(Username username, Password password);
+        Name? AuthenticateLegacy(Username username, Password password);
     }
     public class CrmCore : ICrmCore {
 
@@ -26,30 +26,37 @@ namespace CRM.Core {
             this.LegacyUserContext = legacyUserContext;
         }
 
-        public Id? Authenticate(Username username, Password password) {
-            var user = UserContext.QueryAll().Where(
-                (User user) => username.Equals(user["Username"])
-            ).Single();
+        public Name? Authenticate(Username username, Password password) {
+            // var user = UserContext.Query(
+            //     (User user) =>
+            //     username.Equals(user["Username"])
+            // ).Single();
 
-            var salt = user["PasswordSalt"] as ByteArray ??
-                throw new InvalidSaltException();
-            if (!PasswordHash.Hash(password, salt).Equals(user["PasswordHash"]))
-                return null;
+            // if (!(user["PasswordSalt"] is ByteArray salt))
+            //     throw new InvalidSaltException();
+            // if (!PasswordHash.Hash(password, salt).Equals(user["PasswordHash"]))
+            //     return null;
 
-            return user["Id"] as Id;
+            // return user["Name"] as Name;
+            throw new System.NotImplementedException();
         }
 
-        public Id? AuthenticateLegacy(Username username, Password password) {
-            var user = LegacyUserContext.QueryAll().Where(
-                (LegacyUser user) => username.Equals(user["Username"])
+        public Name? AuthenticateLegacy(Username username, Password password) {
+            // var user = LegacyUserContext.Query(
+            //     (LegacyUser user) =>
+            //     username.Equals(user["Username"])
+            // ).Single();
+
+            // TODO: Operator ==
+
+            var user = LegacyUserContext.QueryExpr(
+                user => user["Username"] == username
             ).Single();
 
-            if (!(user["Password"] is Password pwd))
-                return null;
-            if (!password.Equals(pwd))
+            if (!password.Equals(user["Password"]))
                 return null;
 
-            return user["Id"] as Id;
+            return user["Name"] as Name;
         }
 
         public class InvalidSaltException : System.Exception { }

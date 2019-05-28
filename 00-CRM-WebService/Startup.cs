@@ -68,6 +68,7 @@ namespace CRM {
         public void AddScopedReadContext<T, TD, TMapper>(
             IServiceCollection services)
         where T : Domain.Entity
+        where TD : class
         where TMapper : class, DAL.IReadMapper<T, TD> {
             services
             .AddScoped<Domain.IReadContext<T>, Domain.ReadContext<T, TD>>()

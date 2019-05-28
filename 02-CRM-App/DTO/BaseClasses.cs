@@ -22,9 +22,7 @@ namespace CRM.Apps.Views {
         public View() {}
         public View(TEntity entity) {}
 
-        public JObject Serialize() =>
-            JObject.FromObject(this);
+        // public JObject Serialize() =>
+        //     JObject.FromObject(this);
     }
 }
-
-// TODO: Utilizes automatic serialization from mvc controller?
